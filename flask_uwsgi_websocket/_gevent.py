@@ -98,11 +98,11 @@ class GeventWebSocketMiddleware(WebSocketMiddleware):
             if send_event.is_set():
                 try:
                     while True:
-                        binary, mesg = send_queue.get_nowait()
+                        (binary, msg) = send_queue.get_nowait()
                         if binary:
-                            uwsgi.websocket_send_binary(mesg)
+                            uwsgi.websocket_send_binary(msg)
                         else:
-                            uwsgi.websocket_send(mesg)
+                            uwsgi.websocket_send(msg)
                 except Empty:
                     send_event.clear()
                 except IOError:
