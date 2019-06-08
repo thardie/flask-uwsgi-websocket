@@ -27,11 +27,11 @@ class GeventWebSocketClient(object):
     def send(self, msg, binary=True):
         if binary:
             return self.send_binary(msg)
-        self.send_queue.put(msg)
+        self.send_queue.put((False, msg))
         self.send_event.set()
 
     def send_binary(self, msg):
-        self.send_queue.put(msg)
+        self.send_queue.put((True, msg))
         self.send_event.set()
 
     def receive(self):
@@ -98,7 +98,11 @@ class GeventWebSocketMiddleware(WebSocketMiddleware):
             if send_event.is_set():
                 try:
                     while True:
-                        uwsgi.websocket_send(send_queue.get_nowait())
+                        binary, mesg = send_queue.get_nowait()
+                        if binary:
+                            uwsgi.websocket_send_binary(msg)
+                        else:
+                            uwsgi.websocket_send(msg)
                 except Empty:
                     send_event.clear()
                 except IOError:
