@@ -24,7 +24,7 @@ class GeventWebSocketClient(object):
         self.id         = str(uuid.uuid1())
         self.connected  = True
 
-    def send(self, msg, binary=True):
+    def send(self, msg, binary=False):
         if binary:
             return self.send_binary(msg)
         self.send_queue.put((False, msg))
